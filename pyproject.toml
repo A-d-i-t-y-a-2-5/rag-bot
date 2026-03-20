@@ -4,4 +4,7 @@ version = "0.1.0"
 description = "Answer queries from documents using bot interface"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "discord-py>=2.7.1",
+    "pydantic-settings>=2.13.1",
+]
