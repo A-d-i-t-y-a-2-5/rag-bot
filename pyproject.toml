@@ -9,4 +9,5 @@ dependencies = [
     "discord-py>=2.7.1",
     "pydantic-settings>=2.13.1",
     "pypdf>=6.9.1",
+    "qdrant-client>=1.17.1",
 ]

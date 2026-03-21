@@ -4,7 +4,7 @@ from typing import Any, AsyncGenerator
 import aiofiles
 from aiofiles.os import makedirs
 
-DEFAULT_CHUNK_SIZE = 1024 * 1024 * 50
+DEFAULT_CHUNK_SIZE = 1024 * 1024 * 5 # 5 MB
 
 async def save_file(file_bytes: bytes, file_name: str, root_dir: str = "uploads") -> str:
     await makedirs(root_dir, exist_ok=True)
