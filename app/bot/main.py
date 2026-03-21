@@ -43,8 +43,8 @@ async def hello(ctx: commands.Context):
     logging.info(f"{ctx.author} has used the hello command.")
 
 
-@bot.command(name="upload_pdf")
-async def upload_pdf(ctx: commands.Context):
+@bot.command(name="upload")
+async def upload(ctx: commands.Context):
     """Upload up to 5 PDF files."""
     attachments = ctx.message.attachments
 
