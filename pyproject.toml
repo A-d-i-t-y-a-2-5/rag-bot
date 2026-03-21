@@ -5,6 +5,8 @@ description = "Answer queries from documents using bot interface"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "aiofiles>=25.1.0",
     "discord-py>=2.7.1",
     "pydantic-settings>=2.13.1",
+    "pypdf>=6.9.1",
 ]
