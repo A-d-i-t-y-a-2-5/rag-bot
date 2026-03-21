@@ -1,11 +1,14 @@
+import asyncio
 import logging
+import os
 
+from aiofiles.os import listdir, remove, makedirs
 import discord
-from discord import app_commands
 from discord.ext import commands
 
 from app.settings import AppSettings
-from app.utils.io import save_file
+from app.rag.extractor import pdf_text_extractor
+from app.rag.service import RAGService
 
 logging.basicConfig(
     level=logging.INFO,
@@ -14,6 +17,7 @@ logging.basicConfig(
 )
 
 config = AppSettings()
+rag_service = RAGService()
 
 intents = discord.Intents.default()
 intents.members = True
@@ -58,12 +62,35 @@ async def upload_pdf(ctx: commands.Context):
         return
 
     for attachment in attachments:
-        pdf_bytes = await attachment.read()
-        await save_file(pdf_bytes, attachment.filename)
+        dest_path = os.path.join("uploads", attachment.filename)
+        await attachment.save(dest_path)
         logging.info(f"{ctx.author} uploaded {attachment.filename} ({attachment.size} bytes)")
+        pdf_text_extractor(dest_path)
+        txt_path = os.path.splitext(dest_path)[0] + ".txt"
+        logging.info(f"Extracted text from {attachment.filename} and saved to {txt_path}")
+        await rag_service.ingest_document(txt_path, config.rag.collection_name, config.rag.vector_size)
 
-    await ctx.send(f"Successfully uploaded {len(attachments)} PDF(s): {', '.join(a.filename for a in attachments)}")
+    await ctx.send(f"Successfully processed {len(attachments)} PDF(s): {', '.join(a.filename for a in attachments)}")
+    
+async def main():
+    try:
+        await makedirs("uploads", exist_ok=True)
+        await bot.start(config.bot.secret)
+    finally:
+        files = await listdir("uploads")
+        for file in files:
+            await remove(os.path.join("uploads", file))
+        logging.info("Cleaned up uploaded files.")
+        await rag_service.delete_collection(config.rag.collection_name)
+        logging.info(f"Deleted collection '{config.rag.collection_name}'.")
+        logging.info("Bot is shutting down...")
+        await bot.close()
 
 
 if __name__ == "__main__":
-    bot.run(config.bot.secret)
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        logging.error(f"Unexpected error caused shutdown: {e}", exc_info=True)
