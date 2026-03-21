@@ -25,6 +25,16 @@ class LLMConfig(BaseSettings):
     api_key: str = "api_key"
     model_name: str = "minimax-m2.7:cloud"
     
+class EmbedderConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_prefix="EMBEDDER_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+    
+    model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
+    
 class RAGConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="RAG_",
@@ -40,6 +50,7 @@ class AppSettings(BaseSettings):
     bot: BotConfig = BotConfig()
     llm: LLMConfig = LLMConfig()
     rag: RAGConfig = RAGConfig()
+    embedder: EmbedderConfig = EmbedderConfig()
 
 if __name__ == "__main__":
     settings = AppSettings()
